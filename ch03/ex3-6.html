@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      rect {
+	stroke-width: 1;
+	stroke: steelblue;
+	fill: #888;
+	fill-opacity: .5;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script>
+
+      d3.json("data/dataFile.json", function(error, json) {
+
+	if (error) return console.log(error);
+	var data = json;
+
+	var svg = d3.select("body")
+		    .append("svg")
+		    .attr("width", 200)
+		    .attr("height", 200);
+
+	svg.selectAll('rect')
+	   .data(data).enter()
+	   .append('rect')
+	   .attr('x', function(d){ return d.x; })
+	   .attr('y', function(d){ return d.y; })
+	   .attr("width", function(d){ return d.width; })
+	   .attr("height", function(d){ return d.height; });
+      });
+      	
+    </script>
+  </body>
+</html>
