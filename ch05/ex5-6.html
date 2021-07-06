@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .boundary {
+	fill: #ddd;
+	stroke: #888;
+	stroke-linejoin: round;
+      }
+      svg {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+      }
+      .overlay {
+	fill: none;
+	pointer-events: all;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    
+    <script src="../lib/d3.v3.min.js"></script>
+    <script src="../lib/topojson.v1.min.js"></script>
+    
+    <script>
+
+      var height = 600;
+      var width = 900;
+      var projection = d3.geo.orthographic().clipAngle(90);
+      var path = d3.geo.path().projection(projection);
+      var world = void 0;
+      var mexico = void 0;
+      
+      var dragging = function(d) {
+	var c = projection.rotate();
+	projection.rotate([c[0] + d3.event.dx/2, c[1], c[2]]);
+
+	world.attr('d', path);
+	mexico.attr('d', path)
+	      .style('fill', 'lightyellow').style('stroke', 'orange');
+      };
+
+      var drag = d3.behavior.drag()
+		   .on("drag", dragging);
+      
+      var svg = d3.select("#map")
+      		  .append("svg")
+		  .attr("width", width)
+		  .attr("height", height);
+
+      d3.json('world.json', function(data) {
+	var countries = topojson.feature(data, data.objects.countries);
+	var m = countries.features[102];
+	
+	var map = svg.append('g').attr('class', 'boundary');
+	world = map.selectAll('path').data(countries.features);
+	mexico = map.selectAll('.mexico').data([m]);
+
+	world.enter()
+	     .append('path')
+	     .attr('d', path);
+
+	mexico.enter()
+	      .append('path')
+	      .attr('class', 'mexico')
+	      .attr('d', path)
+	      .style('fill', 'lightyellow').style('stroke', 'orange');
+
+	svg.append("rect")
+	   .attr("class", "overlay")
+	   .attr("width", width)
+	   .attr("height", height)
+	   .call(drag);
+      });
+      
+    </script>
+  </body>
+</html>

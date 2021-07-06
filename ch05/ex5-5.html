@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .boundary {
+	fill: #ddd;
+	stroke: #888;
+	stroke-linejoin: round;
+      }
+      svg {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    
+    <script src="../lib/d3.v3.min.js"></script>
+    <script src="../lib/topojson.v1.min.js"></script>
+    
+    <script>
+
+      var height = 600;
+      var width = 900;
+      var projection = d3.geo.orthographic().clipAngle(90);
+      var path = d3.geo.path().projection(projection);
+      var i = 0;
+      
+      var svg = d3.select("#map")
+      		  .append("svg")
+		  .attr("width", width)
+		  .attr("height", height);
+
+      d3.json('world.json', function(data) {
+	var countries = topojson.feature(data, data.objects.countries);
+	var mexico = countries.features[102];
+	
+	var map = svg.append('g').attr('class', 'boundary');
+	var world = map.selectAll('path').data(countries.features);
+	var mexico = map.selectAll('.mexico').data([mexico]);
+
+	world.enter()
+	     .append('path')
+	     .attr('d', path);
+
+	mexico.enter()
+	      .append('path')
+	      .attr('class', 'mexico')
+	      .attr('d', path)
+	      .style('fill', 'lightyellow').style('stroke', 'orange');
+
+	setInterval(function() {
+	  i = i+0.2;
+	  // move i around in the array to get a feel for yaw, pitch
+	  // and roll
+	  // see diagram
+	  projection.rotate([i,0,0]);
+	  world.attr('d', path);
+	  mexico.attr('d', path)
+		.style('fill', 'lightyellow').style('stroke', 'orange');
+	}, 20);
+      });
+      
+    </script>
+  </body>
+</html>
